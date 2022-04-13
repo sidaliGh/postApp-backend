@@ -23,16 +23,6 @@ app.use('/api/user', userRoutes)
 app.use('/api/post', postRoutes)
 
 
-
-
-
-
-
-
-
-
-
-
 mongoose.connect(
   `${process.env.MONGO_URI}`
 ).then((result) => {
