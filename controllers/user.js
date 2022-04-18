@@ -1,4 +1,11 @@
+const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+
+//Generate Token
+
+const generateToken = (id) => {
+  return jwt.sign({ id }, 'token123', { expiresIn: '30d' })
+}
 
 const addUser = async (req, res, next) => {
   const { name, email, password } = req.body
@@ -15,20 +22,19 @@ const addUser = async (req, res, next) => {
     res.status(400).send(err)
   }
 
-  res.status(201).json({ user: createdUser })
+  res.status(201).json({ user: createdUser, token: generateToken(createdUser._id) })
 }
 
 const login = async (req, res, next) => {
-  const {email, password} = req.body
+  const { email, password } = req.body
   let user
-  try{
+  try {
     user = await User.findByCredentials(email, password, res)
-  } catch (err){
+  } catch (err) {
     console.log(err)
   }
 
-  res.status(200).json({message: 'loged in', email: user.email})
-
+  res.status(200).json({ message: 'loged in', email: user.email, token: generateToken(user._id) })
 }
 
 const getUsers = async (req, res, next) => {
@@ -50,8 +56,8 @@ const getUserById = async (req, res, next) => {
   } catch (err) {
     res.status(400).send(err)
   }
-  if(!user){
-      res.status(404).send('no user found with this Id')
+  if (!user) {
+    res.status(404).send('no user found with this Id')
   }
   res.status(200).json({ user: user })
 }
@@ -78,21 +84,19 @@ const updateUser = async (req, res, next) => {
     res.status(400).send(err)
   }
 
-  res.status(200).json({message: 'updated'})
+  res.status(200).json({ message: 'updated' })
 }
 
 const deleteUser = async (req, res, next) => {
-    const userId = req.params.userId
+  const userId = req.params.userId
 
-    try{
+  try {
+    await User.findByIdAndRemove(userId)
+  } catch (err) {
+    return console.log(err)
+  }
 
-        await User.findByIdAndRemove(userId)
-
-    } catch (err){
-        return console.log(err)
-    }
-
-    res.status(200).json({message: 'deleted'})
+  res.status(200).json({ message: 'deleted' })
 }
 
 exports.addUser = addUser
