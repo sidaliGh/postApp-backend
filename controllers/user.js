@@ -36,7 +36,7 @@ const addUser = async (req, res, next) => {
 
   res
     .status(201)
-    .json({ user: createdUser, token: generateToken(createdUser._id) })
+    .json({ user: createdUser, id: createdUser._id, token: generateToken(createdUser._id) })
 }
 
 const login = async (req, res, next) => {
@@ -53,6 +53,7 @@ const login = async (req, res, next) => {
     .json({
       message: 'loged in',
       email: user.email,
+      id: user._id,
       token: generateToken(user._id),
     })
 }
