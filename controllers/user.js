@@ -10,6 +10,18 @@ const generateToken = (id) => {
 const addUser = async (req, res, next) => {
   const { name, email, password } = req.body
 
+  let existingUser
+  try {
+    existingUser = await User.findOne({ email })
+  } catch (error) {
+    console.log('error')
+  }
+
+  if(existingUser){
+    res.status(400).send({message: 'login instead'})
+    throw new Error('login instead')
+  }
+
   const createdUser = new User({
     name,
     email,
@@ -22,7 +34,9 @@ const addUser = async (req, res, next) => {
     res.status(400).send(err)
   }
 
-  res.status(201).json({ user: createdUser, token: generateToken(createdUser._id) })
+  res
+    .status(201)
+    .json({ user: createdUser, token: generateToken(createdUser._id) })
 }
 
 const login = async (req, res, next) => {
@@ -34,7 +48,13 @@ const login = async (req, res, next) => {
     console.log(err)
   }
 
-  res.status(200).json({ message: 'loged in', email: user.email, token: generateToken(user._id) })
+  res
+    .status(200)
+    .json({
+      message: 'loged in',
+      email: user.email,
+      token: generateToken(user._id),
+    })
 }
 
 const getUsers = async (req, res, next) => {
